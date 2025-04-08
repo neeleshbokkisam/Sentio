@@ -40,3 +40,18 @@ VibeCheck.AI is a fun and powerful multimodal AI tool that uses your **webcam** 
 ```bash
 git clone https://github.com/YOUR_USERNAME/VibeCheck.AI.git
 cd VibeCheck.AI
+
+2. Create a virtual environment (optional)
+
+python3 -m venv .venv
+source .venv/bin/activate
+
+3. Install dependencies
+
+pip install -r requirements.txt
+
+4. Run the app
+
+python3 vibecheck_cv.py
+Press Q to quit
+
