@@ -35,9 +35,10 @@ VibeCheck.AI is a fun and powerful multimodal AI tool that uses your **webcam** 
 
 ## 🚀 Getting Started
 
-### 1. Clone this repo
 
 ```bash
+1. Clone this repo
+
 git clone https://github.com/YOUR_USERNAME/VibeCheck.AI.git
 cd VibeCheck.AI
 
