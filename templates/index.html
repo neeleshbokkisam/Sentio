@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentio</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <nav class="nav">
+    <span class="logo">Sentio</span>
+    <a href="/" class="active">Live</a>
+    <a href="/insights">History</a>
+    <a href="/calibrate">Calibrate</a>
+  </nav>
+
+  <main class="dashboard">
+    <section class="feed-panel">
+      <video id="webcam" autoplay playsinline muted></video>
+      <div class="controls">
+        <button id="startBtn">Start</button>
+        <button id="stopBtn" disabled>Stop</button>
+      </div>
+    </section>
+
+    <section class="mood-panel">
+      <div class="mood-ring" id="moodRing">
+        <span id="moodLabel">--</span>
+      </div>
+      <p class="mood-conf" id="moodConf">confidence --</p>
+    </section>
+
+    <section class="bars-panel">
+      <div class="bar-row">
+        <span>Face</span>
+        <div class="bar"><div class="bar-fill" id="faceBar"></div></div>
+        <span id="facePct">0%</span>
+      </div>
+      <div class="bar-row">
+        <span>Voice</span>
+        <div class="bar"><div class="bar-fill" id="voiceBar"></div></div>
+        <span id="voicePct">0%</span>
+      </div>
+    </section>
+
+    <section class="mismatch-banner hidden" id="mismatchBanner">
+      Mismatch — face says <strong id="mFace"></strong>, voice says <strong id="mVoice"></strong>
+    </section>
+
+    <section class="timeline-panel">
+      <canvas id="timelineChart"></canvas>
+    </section>
+  </main>
+
+  <div class="modal hidden" id="calModal">
+    <div class="modal-box">
+      <h2>Calibrate Sentio to you?</h2>
+      <p>Takes about 30 seconds. Helps with your resting face and voice.</p>
+      <button onclick="location.href='/calibrate'">Calibrate</button>
+      <button id="skipCal">Skip</button>
+    </div>
+  </div>
+
+  <script src="/static/js/dashboard.js"></script>
+  <script src="/static/js/media.js"></script>
+</body>
+</html>

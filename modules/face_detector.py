@@ -1,0 +1,50 @@
+import cv2
+from deepface import DeepFace
+
+from modules.config import DEEPFACE_INTERVAL_FRAMES
+from modules.fusion import normalize_emotion
+
+
+class FaceDetector:
+    def __init__(self, interval_frames: int = DEEPFACE_INTERVAL_FRAMES):
+        self.interval_frames = interval_frames
+        self._frame_count = 0
+        self._last = {"emotion": "detecting", "confidence": 0.0, "detected": False}
+
+    def analyze_frame(self, frame) -> dict:
+        self._frame_count += 1
+        if self._frame_count % self.interval_frames != 0:
+            return dict(self._last)
+
+        try:
+            small = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
+            result = DeepFace.analyze(
+                small,
+                actions=["emotion"],
+                enforce_detection=False,
+                detector_backend="opencv",
+            )
+            emotions = result[0]["emotion"]
+            dominant = result[0]["dominant_emotion"]
+            conf = emotions.get(dominant, 0.0) / 100.0
+            self._last = {
+                "emotion": normalize_emotion(dominant),
+                "confidence": round(conf, 3),
+                "detected": dominant != "unknown" and conf > 0.05,
+                "raw_scores": emotions,
+            }
+        except Exception as e:
+            print("face error:", e)
+            self._last = {"emotion": "no_face", "confidence": 0.0, "detected": False}
+
+        return dict(self._last)
+
+    def analyze_image_bytes(self, image_bytes: bytes) -> dict:
+        import numpy as np
+
+        arr = np.frombuffer(image_bytes, dtype=np.uint8)
+        frame = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+        if frame is None:
+            return {"emotion": "unknown", "confidence": 0.0, "detected": False}
+        self._frame_count = self.interval_frames - 1
+        return self.analyze_frame(frame)

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentio — Calibrate</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <span class="logo">Sentio</span>
+    <a href="/">Live</a>
+    <a href="/insights">History</a>
+    <a href="/calibrate" class="active">Calibrate</a>
+  </nav>
+
+  <main class="calibrate-page">
+    <h1>Calibration</h1>
+    <p>Run this from desktop for best results: <code>python run.py calibrate</code></p>
+    <p>Or use the web wizard below (needs camera + mic).</p>
+
+    <div id="calStep" class="cal-step">Step 1: Sit neutral and look at the camera (8 sec)</div>
+    <video id="calVideo" autoplay playsinline muted width="320"></video>
+    <button id="calStart">Start calibration</button>
+    <button id="calNext" disabled>Next step</button>
+    <p id="calStatus"></p>
+  </main>
+
+  <script src="/static/js/calibrate.js"></script>
+</body>
+</html>

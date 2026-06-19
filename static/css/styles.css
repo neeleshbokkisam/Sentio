@@ -1,0 +1,212 @@
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --mood-color: #6b7280;
+  --accent: #6366f1;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+  background: var(--surface);
+  border-bottom: 1px solid #2d3140;
+}
+
+.nav .logo { font-weight: 700; font-size: 1.2rem; }
+.nav a { color: var(--muted); text-decoration: none; }
+.nav a.active, .nav a:hover { color: var(--text); }
+
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  grid-template-rows: auto auto auto 200px;
+  gap: 1rem;
+  padding: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.feed-panel { grid-row: 1 / 3; }
+.feed-panel video {
+  width: 100%;
+  border-radius: 8px;
+  background: #000;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+}
+
+.controls { margin-top: 0.75rem; display: flex; gap: 0.5rem; }
+button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.mood-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.mood-ring {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 6px solid var(--mood-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  transition: border-color 0.3s;
+}
+
+.mood-conf { margin-top: 0.75rem; color: var(--muted); font-size: 0.85rem; }
+
+.bars-panel {
+  grid-column: 1 / -1;
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 50px 1fr 40px;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.bar {
+  height: 10px;
+  background: #2d3140;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--mood-color);
+  transition: width 0.3s, background 0.3s;
+}
+
+.mismatch-banner {
+  grid-column: 1 / -1;
+  background: #422006;
+  border: 1px solid #f59e0b;
+  color: #fcd34d;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.timeline-panel {
+  grid-column: 1 / -1;
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.hidden { display: none !important; }
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-box {
+  background: var(--surface);
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 400px;
+  text-align: center;
+}
+.modal-box h2 { margin-bottom: 0.5rem; }
+.modal-box p { color: var(--muted); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.modal-box button { margin: 0 0.25rem; }
+
+.insights-page, .calibrate-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.chart-box {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.sessions-section table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.sessions-section th, .sessions-section td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #2d3140;
+  font-size: 0.85rem;
+}
+
+.replay-section {
+  margin-top: 2rem;
+  background: var(--surface);
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.cal-step {
+  background: var(--surface);
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+#calVideo { border-radius: 8px; margin: 1rem 0; }
+
+@media (max-width: 768px) {
+  .dashboard { grid-template-columns: 1fr; }
+  .charts-row { grid-template-columns: 1fr; }
+}
