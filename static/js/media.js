@@ -9,17 +9,21 @@ const startBtn = document.getElementById("startBtn");
 const stopBtn = document.getElementById("stopBtn");
 
 let lastFace = {};
-let lastVoice = {};
+let lastVoice = { emotion: "detecting", confidence: 0 };
 
 async function startCapture() {
-  // needs HTTPS off localhost for some browsers
   stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
   video.srcObject = stream;
   running = true;
   startBtn.disabled = true;
   stopBtn.disabled = false;
 
-  faceInterval = setInterval(captureFace, 800);
+  await new Promise(resolve => {
+    if (video.readyState >= 1) resolve();
+    else video.onloadedmetadata = () => resolve();
+  });
+
+  faceInterval = setInterval(captureFace, 1000);
   voiceInterval = setInterval(captureVoice, 3000);
 }
 
@@ -34,12 +38,13 @@ function stopCapture() {
 }
 
 async function captureFace() {
-  if (!running) return;
+  if (!running || !video.videoWidth) return;
+
   const canvas = document.createElement("canvas");
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   canvas.getContext("2d").drawImage(video, 0, 0);
-  const image = canvas.toDataURL("image/jpeg", 0.7);
+  const image = canvas.toDataURL("image/jpeg", 0.75);
 
   const res = await fetch("/api/analyze/face", {
     method: "POST",
@@ -82,7 +87,6 @@ async function captureVoice() {
 }
 
 async function postFusion() {
-  if (!lastFace.emotion && !lastVoice.emotion) return;
   const res = await fetch("/api/analyze/fusion", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

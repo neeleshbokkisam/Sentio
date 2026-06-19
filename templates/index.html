@@ -15,50 +15,65 @@
     <a href="/calibrate">Calibrate</a>
   </nav>
 
-  <main class="dashboard">
-    <section class="feed-panel">
-      <video id="webcam" autoplay playsinline muted></video>
-      <div class="controls">
-        <button id="startBtn">Start</button>
-        <button id="stopBtn" disabled>Stop</button>
-      </div>
+  <main class="live">
+    <div class="live-grid">
+      <section class="card feed-card">
+        <video id="webcam" autoplay playsinline muted></video>
+        <div class="controls">
+          <button id="startBtn">Start</button>
+          <button id="stopBtn" class="secondary" disabled>Stop</button>
+        </div>
+      </section>
+
+      <section class="card mood-card">
+        <p class="label">Your mood</p>
+        <div class="mood-ring" id="moodRing">
+          <div class="mood-label" id="moodLabel">
+            <span class="mood-primary">—</span>
+          </div>
+        </div>
+        <div class="signals">
+          <div class="signal-row">
+            <span class="signal-name">Face</span>
+            <span class="signal-emotion" id="faceEmotion">—</span>
+            <span class="signal-dot" id="faceDot"></span>
+            <span class="signal-strength" id="faceSignal">offline</span>
+          </div>
+          <div class="signal-row">
+            <span class="signal-name">Voice</span>
+            <span class="signal-emotion" id="voiceEmotion">—</span>
+            <span class="signal-dot" id="voiceDot"></span>
+            <span class="signal-strength" id="voiceSignal">offline</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="banner hidden" id="offlineBanner">
+      Can't read your face right now — mood is from voice only.
     </section>
 
-    <section class="mood-panel">
-      <div class="mood-ring" id="moodRing">
-        <span id="moodLabel">--</span>
-      </div>
-      <p class="mood-conf" id="moodConf">confidence --</p>
+    <section class="banner mismatch hidden" id="mismatchBanner">
+      Your face looks <strong id="mFace"></strong> but your voice sounds <strong id="mVoice"></strong>.
     </section>
 
-    <section class="bars-panel">
-      <div class="bar-row">
-        <span>Face</span>
-        <div class="bar"><div class="bar-fill" id="faceBar"></div></div>
-        <span id="facePct">0%</span>
-      </div>
-      <div class="bar-row">
-        <span>Voice</span>
-        <div class="bar"><div class="bar-fill" id="voiceBar"></div></div>
-        <span id="voicePct">0%</span>
-      </div>
-    </section>
-
-    <section class="mismatch-banner hidden" id="mismatchBanner">
-      Mismatch — face says <strong id="mFace"></strong>, voice says <strong id="mVoice"></strong>
-    </section>
-
-    <section class="timeline-panel">
+    <section class="card timeline-card">
+      <p class="label">Timeline</p>
       <canvas id="timelineChart"></canvas>
     </section>
+
+    <details class="debug-panel">
+      <summary>Debug</summary>
+      <pre id="debugText">—</pre>
+    </details>
   </main>
 
   <div class="modal hidden" id="calModal">
     <div class="modal-box">
-      <h2>Calibrate Sentio to you?</h2>
-      <p>Takes about 30 seconds. Helps with your resting face and voice.</p>
+      <h2>Calibrate Sentio?</h2>
+      <p>~30 seconds. Helps with your resting face and voice.</p>
       <button onclick="location.href='/calibrate'">Calibrate</button>
-      <button id="skipCal">Skip</button>
+      <button class="secondary" id="skipCal">Skip</button>
     </div>
   </div>
 

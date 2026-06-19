@@ -1,19 +1,21 @@
 import base64
 import io
+import time
 import wave
 
 import numpy as np
 from flask import Flask, jsonify, render_template, request, Response
 
+from app.debug_log import get_status, record_face, record_voice
 from app.insights import daily_insights, export_session_csv, get_session_replay, list_sessions, weekly_insights
 from app.mood_logger import MoodLogger
-from modules.calibration import apply_calibration, load_profile, save_profile, CalibrationProfile
+from modules.calibration import apply_calibration, is_profile_valid, load_profile, save_profile, CalibrationProfile
 from modules.face_detector import FaceDetector
 from modules.fusion import fuse_mood
-from modules.voice_detector import detect_voice_emotion
+from modules.voice_detector import detect_voice_emotion, voice_backend
 
 face_detector = FaceDetector()
-mood_logger = MoodLogger(mode="web", calibrated=load_profile() is not None)
+mood_logger = MoodLogger(mode="web", calibrated=is_profile_valid(load_profile()))
 
 
 def create_app():
@@ -37,18 +39,25 @@ def create_app():
         image_b64 = data.get("image", "")
         if "," in image_b64:
             image_b64 = image_b64.split(",", 1)[1]
+        t0 = time.time()
         try:
             image_bytes = base64.b64decode(image_b64)
             result = face_detector.analyze_image_bytes(image_bytes)
-            profile = load_profile()
+            profile = load_profile() if is_profile_valid(load_profile()) else None
             if profile:
                 result, _ = apply_calibration(result, {}, profile)
+            record_face(result, (time.time() - t0) * 1000)
             return jsonify(result)
         except Exception as e:
-            return jsonify({"error": str(e), "emotion": "unknown", "confidence": 0, "detected": False}), 400
+            err = str(e)
+            result = {"emotion": "no_face", "confidence": 0.0, "detected": False, "error": err}
+            record_face(result, (time.time() - t0) * 1000, error=err)
+            return jsonify(result)
 
     @app.route("/api/analyze/voice", methods=["POST"])
     def analyze_voice():
+        t0 = time.time()
+        backend = voice_backend()
         try:
             data = request.get_json(silent=True) or {}
             if "samples" in data:
@@ -59,24 +68,36 @@ def create_app():
                 audio, sr = _parse_wav(raw)
 
             result = detect_voice_emotion(audio, sr)
-            profile = load_profile()
+            profile = load_profile() if is_profile_valid(load_profile()) else None
             if profile:
                 _, result = apply_calibration({}, result, profile)
+            record_voice(result, (time.time() - t0) * 1000, backend=backend)
             return jsonify(result)
         except Exception as e:
-            return jsonify({"error": str(e), "emotion": "unknown", "confidence": 0}), 400
+            err = str(e)
+            result = {"emotion": "unknown", "confidence": 0.0, "error": err}
+            record_voice(result, (time.time() - t0) * 1000, backend=backend, error=err)
+            return jsonify(result)
 
     @app.route("/api/analyze/fusion", methods=["POST"])
     def analyze_fusion():
         data = request.get_json(silent=True) or {}
         face = data.get("face", {})
         voice = data.get("voice", {})
-        profile = load_profile()
+        profile = load_profile() if is_profile_valid(load_profile()) else None
         if profile:
             face, voice = apply_calibration(face, voice, profile)
         fused = fuse_mood(face, voice)
         mood_logger.log(face, voice, fused)
         return jsonify({"face": face, "voice": voice, **fused})
+
+    @app.route("/api/debug/status")
+    def debug_status():
+        profile = load_profile()
+        return jsonify(get_status({
+            "calibration_valid": is_profile_valid(profile),
+            "session_readings": len(mood_logger.get_current_session_readings()),
+        }))
 
     @app.route("/api/session")
     def current_session():
@@ -125,6 +146,8 @@ def create_app():
                 neutral_voice=samples.get("neutral_voice", {}),
                 created_at=data.get("created_at", ""),
             )
+            if not is_profile_valid(profile):
+                return jsonify({"ok": False, "error": "invalid samples — face capture failed"}), 400
             save_profile(profile)
             return jsonify({"ok": True, "profile": profile.to_dict()})
 
@@ -133,7 +156,8 @@ def create_app():
     @app.route("/api/calibration/status")
     def calibration_status():
         profile = load_profile()
-        return jsonify({"calibrated": profile is not None, "profile": profile.to_dict() if profile else None})
+        valid = is_profile_valid(profile)
+        return jsonify({"calibrated": valid, "profile": profile.to_dict() if valid else None})
 
     return app
 

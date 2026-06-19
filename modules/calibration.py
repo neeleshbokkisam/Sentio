@@ -29,9 +29,27 @@ def load_profile():
         return None
     try:
         data = json.loads(CALIBRATION_FILE.read_text())
-        return CalibrationProfile.from_dict(data)
+        profile = CalibrationProfile.from_dict(data)
+        if not is_profile_valid(profile):
+            return None
+        return profile
     except Exception:
         return None
+
+
+def is_profile_valid(profile) -> bool:
+    if profile is None:
+        return False
+    for key in ("neutral_face", "happy_face"):
+        sample = getattr(profile, key, None) or {}
+        if sample.get("error"):
+            return False
+        if not sample.get("detected") and sample.get("emotion") in ("unknown", "no_face", None):
+            return False
+    voice = profile.neutral_voice or {}
+    if voice.get("error"):
+        return False
+    return True
 
 
 def save_profile(profile: CalibrationProfile):

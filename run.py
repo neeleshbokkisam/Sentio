@@ -1,12 +1,11 @@
 import sys
 
-import cv2
-
-from modules.calibration import run_calibration
-from modules.config import CAMERA_INDEX
-
 
 def run_calibration_wizard():
+    import cv2
+    from modules.calibration import run_calibration
+    from modules.config import CAMERA_INDEX
+
     cap = cv2.VideoCapture(CAMERA_INDEX)
     if not cap.isOpened():
         print("couldn't open camera")

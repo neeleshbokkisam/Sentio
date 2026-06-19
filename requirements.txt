@@ -3,6 +3,7 @@ flask>=3.0
 opencv-python>=4.8
 deepface>=0.0.79
 tensorflow>=2.13
+tf-keras>=2.13
 librosa>=0.10
 sounddevice>=0.4
 numpy>=1.24

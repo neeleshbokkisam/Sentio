@@ -14,16 +14,29 @@
     <a href="/calibrate" class="active">Calibrate</a>
   </nav>
 
-  <main class="calibrate-page">
+  <main class="calibrate-page cal-wizard">
     <h1>Calibration</h1>
-    <p>Run this from desktop for best results: <code>python run.py calibrate</code></p>
-    <p>Or use the web wizard below (needs camera + mic).</p>
+    <p class="label" style="text-transform:none;letter-spacing:0;font-size:0.9rem;color:var(--muted)">
+      Three quick steps. Follow the timer.
+    </p>
 
-    <div id="calStep" class="cal-step">Step 1: Sit neutral and look at the camera (8 sec)</div>
-    <video id="calVideo" autoplay playsinline muted width="320"></video>
-    <button id="calStart">Start calibration</button>
-    <button id="calNext" disabled>Next step</button>
-    <p id="calStatus"></p>
+    <div class="cal-step">
+      <p id="calInstruction">Press start when ready.</p>
+      <div class="cal-timer" id="calTimer">—</div>
+      <div class="cal-progress"><div class="cal-progress-fill" id="calProgress"></div></div>
+      <p id="calStatus" style="color:var(--muted);font-size:0.875rem"></p>
+    </div>
+
+    <video id="calVideo" autoplay playsinline muted width="480"></video>
+
+    <div class="cal-controls" id="calControls">
+      <button id="calStart">Start</button>
+      <button class="secondary" id="calSkip">Skip</button>
+      <a href="/" class="btn-link">Go to Live</a>
+    </div>
+    <div class="cal-controls hidden" id="calDoneControls">
+      <a href="/" class="btn-link primary">Go to Live</a>
+    </div>
   </main>
 
   <script src="/static/js/calibrate.js"></script>

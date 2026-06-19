@@ -8,13 +8,18 @@ _classifier = None
 _use_fallback = False
 
 
+def voice_backend() -> str:
+    if _use_fallback:
+        return "fallback"
+    return "speechbrain" if _classifier else "unknown"
+
+
 def _load_classifier():
     global _classifier, _use_fallback
     if _classifier is not None or _use_fallback:
         return _classifier
 
     try:
-        import torch
         from speechbrain.inference.interfaces import foreign_class
 
         _classifier = foreign_class(
@@ -26,6 +31,16 @@ def _load_classifier():
         print("speechbrain failed to load, using fallback:", e)
         _use_fallback = True
     return _classifier
+
+
+def _normalize_conf(score: float) -> float:
+    # speechbrain returns log-probs — squash to 0-1
+    if score <= 0:
+        return min(1.0, max(0.0, float(score) + 1.0))
+    if score <= 1.0:
+        return float(score)
+    import math
+    return 1.0 / (1.0 + math.exp(-score))
 
 
 def _fallback_detect(audio: np.ndarray, sr: int) -> dict:
@@ -64,10 +79,13 @@ def detect_voice_emotion(audio: np.ndarray, sr: int) -> dict:
     wav = _resample(audio, sr)
     tensor = torch.tensor(wav).unsqueeze(0)
     try:
-        _out_prob, score, _index, text_lab = classifier.classify_batch(tensor)
+        out_prob, score, _index, text_lab = classifier.classify_batch(tensor)
         raw_label = text_lab[0] if text_lab else "neutral"
         mapped = VOICE_LABEL_MAP.get(raw_label.lower(), normalize_emotion(raw_label))
-        conf = float(score[0]) if hasattr(score, "__getitem__") else float(score)
+        if out_prob is not None and hasattr(out_prob, "max"):
+            conf = float(torch.softmax(out_prob, dim=-1).max().item())
+        else:
+            conf = _normalize_conf(float(score[0]) if hasattr(score, "__getitem__") else float(score))
         return {"emotion": mapped, "confidence": round(conf, 3), "raw_label": raw_label}
     except Exception as e:
         print("voice error:", e)
