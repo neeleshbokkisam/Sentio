@@ -1,5 +1,4 @@
 import time
-from pathlib import Path
 
 from modules.config import SENTIO_DIR
 

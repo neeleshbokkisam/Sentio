@@ -1,5 +1,9 @@
-import numpy as np
+import math
+
 import librosa
+import numpy as np
+import sounddevice as sd
+import torch
 
 from modules.config import SAMPLE_RATE, VOICE_LABEL_MAP, SPEECHBRAIN_MODEL
 from modules.fusion import normalize_emotion
@@ -39,7 +43,6 @@ def _normalize_conf(score: float) -> float:
         return min(1.0, max(0.0, float(score) + 1.0))
     if score <= 1.0:
         return float(score)
-    import math
     return 1.0 / (1.0 + math.exp(-score))
 
 
@@ -74,8 +77,6 @@ def detect_voice_emotion(audio: np.ndarray, sr: int) -> dict:
         wav = _resample(audio, sr)
         return _fallback_detect(wav, SAMPLE_RATE)
 
-    import torch
-
     wav = _resample(audio, sr)
     tensor = torch.tensor(wav).unsqueeze(0)
     try:
@@ -93,8 +94,6 @@ def detect_voice_emotion(audio: np.ndarray, sr: int) -> dict:
 
 
 def record_audio(duration: float, sample_rate: int = 22050) -> tuple:
-    import sounddevice as sd
-
     samples = int(duration * sample_rate)
     audio = sd.rec(samples, samplerate=sample_rate, channels=1, dtype="float32")
     sd.wait()

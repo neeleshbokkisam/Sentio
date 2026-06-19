@@ -1,5 +1,7 @@
 import json
+from unittest.mock import patch
 
+import numpy as np
 import pytest
 
 from modules.fusion import fuse_mood, normalize_emotion
@@ -40,8 +42,6 @@ def test_fuse_mismatch():
 def test_face_result_json_serializable():
     pytest.importorskip("cv2")
     pytest.importorskip("deepface")
-    from unittest.mock import patch
-    import numpy as np
     from modules.face_detector import FaceDetector
 
     with patch("deepface.DeepFace") as mock:

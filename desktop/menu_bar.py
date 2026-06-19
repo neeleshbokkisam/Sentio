@@ -4,18 +4,18 @@ import threading
 import time
 import webbrowser
 
-from modules.calibration import load_profile
+import cv2
+import rumps
+
+from modules.calibration import apply_calibration, load_profile
 from modules.config import AUDIO_DURATION, CAMERA_INDEX, DEEPFACE_INTERVAL_BACKGROUND, RECORD_SAMPLE_RATE
 from modules.face_detector import FaceDetector
 from modules.fusion import fuse_mood
-from modules.calibration import apply_calibration
 from modules.voice_detector import detect_voice_emotion, record_audio
 
 
 class SentioMenuBar:
     def __init__(self):
-        import rumps
-
         self._rumps = rumps
         self.app = rumps.App("Sentio", quit_button=None)
         self._history_items = [
@@ -39,7 +39,7 @@ class SentioMenuBar:
     def _capture_loop(self):
         detector = FaceDetector(interval_frames=DEEPFACE_INTERVAL_BACKGROUND)
         profile = load_profile()
-        cap = __import__("cv2").VideoCapture(CAMERA_INDEX)
+        cap = cv2.VideoCapture(CAMERA_INDEX)
 
         while not self._stop.is_set():
             try:

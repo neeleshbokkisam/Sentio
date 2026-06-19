@@ -4,11 +4,11 @@ import numpy as np
 import pytest
 
 from modules.fusion import fuse_mood
+from modules.voice_detector import _fallback_detect
 
 
 def test_fallback_detect():
     pytest.importorskip("librosa")
-    from modules.voice_detector import _fallback_detect
 
     audio = np.random.randn(16000).astype(np.float32)
     result = _fallback_detect(audio, 16000)

@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 from deepface import DeepFace
 
 from modules.config import DEEPFACE_INTERVAL_FRAMES
@@ -47,8 +48,6 @@ class FaceDetector:
         return dict(self._last)
 
     def analyze_image_bytes(self, image_bytes: bytes) -> dict:
-        import numpy as np
-
         arr = np.frombuffer(image_bytes, dtype=np.uint8)
         frame = cv2.imdecode(arr, cv2.IMREAD_COLOR)
         if frame is None:
